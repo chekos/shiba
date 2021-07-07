@@ -82,7 +82,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web-services') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
     }
-
+	runtimeOnly files('libs/ojdbc8-19.6.0.0.jar')
     implementation 'io.awspring.cloud:spring-cloud-aws-context:2.3.1'
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
     implementation 'io.awspring.cloud:spring-cloud-aws-autoconfigure:2.3.1'

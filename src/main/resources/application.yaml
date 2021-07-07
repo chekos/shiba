@@ -1,6 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/shiba
+    url: jdbc:oracle:thin:@localhost:1521/shiba
+    username: shiba
+    password: shiba
   session:
     store-type: jdbc
     jdbc:

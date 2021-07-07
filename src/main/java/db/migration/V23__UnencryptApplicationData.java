@@ -29,32 +29,32 @@ public class V23__UnencryptApplicationData extends BaseJavaMigration {
     ApplicationDataEncryptor applicationDataEncryptor;
 
     public void migrate(Context context) throws GeneralSecurityException, IOException {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
-        objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        applicationDataEncryptor = new ApplicationDataEncryptor(objectMapper, System.getenv("ENCRYPTION_KEY"));
-        SqlParameterSource[] sqlParameterSources = jdbcTemplate.query(
-                "SELECT id, encrypted_data " +
-                        "FROM applications " +
-                        "WHERE encrypted_data IS NOT NULL " +
-                        "AND application_data IS NULL", (rs, rowNum) ->
-                {
-                    try {
-                        return new MapSqlParameterSource("application_data", unencryptedAppDataWithEncryptedSSN(rs))
-                                .addValue("id", rs.getString("id"));
-                    } catch (Exception e) {
-                        System.out.println("Unable to migrate id=" + rs.getString("id"));
-                        e.printStackTrace();
-                        return new MapSqlParameterSource("application_data", "")
-                                .addValue("id", rs.getString("id"));
-                    }
-                })
-                .toArray(SqlParameterSource[]::new);
-        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        namedParameterJdbcTemplate.batchUpdate(
-                "UPDATE applications " +
-                        "SET application_data = to_json(:application_data)" +
-                        "WHERE id = :id", sqlParameterSources);
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
+//        objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+//        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+//        applicationDataEncryptor = new ApplicationDataEncryptor(objectMapper, System.getenv("ENCRYPTION_KEY"));
+//        SqlParameterSource[] sqlParameterSources = jdbcTemplate.query(
+//                "SELECT id, encrypted_data " +
+//                        "FROM applications " +
+//                        "WHERE encrypted_data IS NOT NULL " +
+//                        "AND application_data IS NULL", (rs, rowNum) ->
+//                {
+//                    try {
+//                        return new MapSqlParameterSource("application_data", unencryptedAppDataWithEncryptedSSN(rs))
+//                                .addValue("id", rs.getString("id"));
+//                    } catch (Exception e) {
+//                        System.out.println("Unable to migrate id=" + rs.getString("id"));
+//                        e.printStackTrace();
+//                        return new MapSqlParameterSource("application_data", "")
+//                                .addValue("id", rs.getString("id"));
+//                    }
+//                })
+//                .toArray(SqlParameterSource[]::new);
+//        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+//        namedParameterJdbcTemplate.batchUpdate(
+//                "UPDATE applications " +
+//                        "SET application_data = to_json(:application_data)" +
+//                        "WHERE id = :id", sqlParameterSources);
     }
 
     private PGobject unencryptedAppDataWithEncryptedSSN(ResultSet rs) throws SQLException, JsonProcessingException {

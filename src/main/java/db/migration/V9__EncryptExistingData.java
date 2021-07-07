@@ -17,21 +17,21 @@ import java.security.GeneralSecurityException;
 
 public class V9__EncryptExistingData extends BaseJavaMigration {
     public void migrate(Context context) throws GeneralSecurityException, IOException {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
-        StringEncryptor stringEncryptor = new StringEncryptor(System.getenv("ENCRYPTION_KEY"));
-        SqlParameterSource[] sqlParameterSources = jdbcTemplate.query(
-                "SELECT id, data " +
-                        "FROM applications " +
-                        "WHERE data IS NOT NULL " +
-                        "AND encrypted_data IS NULL", (rs, rowNum) ->
-                new MapSqlParameterSource("encryptedData", stringEncryptor.encrypt(rs.getString("data")))
-                        .addValue("id", rs.getString("id")))
-                .toArray(SqlParameterSource[]::new);
-        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        namedParameterJdbcTemplate.batchUpdate(
-                "UPDATE applications " +
-                        "SET encrypted_data = :encryptedData " +
-                        "WHERE id = :id", sqlParameterSources);
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
+//        StringEncryptor stringEncryptor = new StringEncryptor(System.getenv("ENCRYPTION_KEY"));
+//        SqlParameterSource[] sqlParameterSources = jdbcTemplate.query(
+//                "SELECT id, data " +
+//                        "FROM applications " +
+//                        "WHERE data IS NOT NULL " +
+//                        "AND encrypted_data IS NULL", (rs, rowNum) ->
+//                new MapSqlParameterSource("encryptedData", stringEncryptor.encrypt(rs.getString("data")))
+//                        .addValue("id", rs.getString("id")))
+//                .toArray(SqlParameterSource[]::new);
+//        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+//        namedParameterJdbcTemplate.batchUpdate(
+//                "UPDATE applications " +
+//                        "SET encrypted_data = :encryptedData " +
+//                        "WHERE id = :id", sqlParameterSources);
     }
 
     protected static class StringEncryptor {

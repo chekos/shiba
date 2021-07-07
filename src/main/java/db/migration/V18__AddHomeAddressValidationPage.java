@@ -53,18 +53,18 @@ public class V18__AddHomeAddressValidationPage extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
-        StringEncryptor stringEncryptor = new StringEncryptor(System.getenv("ENCRYPTION_KEY"));
-        SqlParameterSource[] sqlParameterSources = jdbcTemplate.query(
-                "SELECT id, encrypted_data FROM applications WHERE encrypted_data IS NOT NULL ",
-                (rs, n) -> new MapSqlParameterSource("encryptedData", addMissingPageAndReturnEncryptedData(rs, stringEncryptor))
-                        .addValue("id", rs.getString("id"))
-        ).toArray(SqlParameterSource[]::new);
-
-        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        namedParameterJdbcTemplate.batchUpdate("UPDATE applications " +
-                "SET encrypted_data = :encryptedData " +
-                "WHERE id = :id", sqlParameterSources);
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
+//        StringEncryptor stringEncryptor = new StringEncryptor(System.getenv("ENCRYPTION_KEY"));
+//        SqlParameterSource[] sqlParameterSources = jdbcTemplate.query(
+//                "SELECT id, encrypted_data FROM applications WHERE encrypted_data IS NOT NULL ",
+//                (rs, n) -> new MapSqlParameterSource("encryptedData", addMissingPageAndReturnEncryptedData(rs, stringEncryptor))
+//                        .addValue("id", rs.getString("id"))
+//        ).toArray(SqlParameterSource[]::new);
+//
+//        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+//        namedParameterJdbcTemplate.batchUpdate("UPDATE applications " +
+//                "SET encrypted_data = :encryptedData " +
+//                "WHERE id = :id", sqlParameterSources);
     }
 
     private byte[] addMissingPageAndReturnEncryptedData(ResultSet result, StringEncryptor stringEncryptor) throws SQLException {

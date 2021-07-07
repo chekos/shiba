@@ -41,7 +41,7 @@ public class ApplicationRepository {
     public String getNextId() {
         int random3DigitNumber = new SecureRandom().nextInt(900) + 100;
 
-        String id = jdbcTemplate.queryForObject("SELECT NEXTVAL('application_id');", String.class);
+        String id = jdbcTemplate.queryForObject("SELECT application_id.nextval from dual", String.class);
         int numberOfZeros = 10 - id.length();
         StringBuilder idBuilder = new StringBuilder();
         idBuilder.append(random3DigitNumber);
@@ -65,18 +65,20 @@ public class ApplicationRepository {
         parameters.put("feedback", application.getFeedback());
 
         var namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        namedParameterJdbcTemplate.update("UPDATE applications SET " +
+        if (namedParameterJdbcTemplate.update("UPDATE applications SET " +
                 "completed_at = :completedAt, " +
-                "application_data = :applicationData ::jsonb, " +
+                "application_data = :applicationData, " +
                 "county = :county, " +
                 "time_to_complete = :timeToComplete, " +
                 "sentiment = :sentiment, " +
                 "feedback = :feedback, " +
-                "flow = :flow WHERE id = :id", parameters);
-        namedParameterJdbcTemplate.update(
-                "INSERT INTO applications (id, completed_at, application_data, county, time_to_complete, sentiment, feedback, flow) " +
-                        "VALUES (:id, :completedAt, :applicationData ::jsonb, :county, :timeToComplete, :sentiment, :feedback, :flow) " +
-                        "ON CONFLICT DO NOTHING", parameters);
+                "flow = :flow WHERE id = :id", parameters) == 0) {
+	        namedParameterJdbcTemplate.update(
+	                "INSERT INTO applications (id, completed_at, application_data, county, time_to_complete, sentiment, feedback, flow) " +
+	                        "VALUES (:id, :completedAt, :applicationData, :county, :timeToComplete, :sentiment, :feedback, :flow) " 
+	                		//+"ON CONFLICT DO NOTHING"
+	                        , parameters);
+        }
         setUpdatedAtTime(application.getId());
     }
 

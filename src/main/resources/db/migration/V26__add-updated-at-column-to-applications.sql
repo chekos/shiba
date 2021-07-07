@@ -1,2 +1,2 @@
 ALTER TABLE applications
-ADD COLUMN updated_at timestamp;
+ADD updated_at timestamp;

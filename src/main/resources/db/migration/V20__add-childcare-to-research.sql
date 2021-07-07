@@ -1,2 +1,2 @@
 ALTER TABLE research
-ADD COLUMN childcare BOOLEAN;
+ADD childcare number(1,0);

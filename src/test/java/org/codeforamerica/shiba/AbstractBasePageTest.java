@@ -87,6 +87,7 @@ public abstract class AbstractBasePageTest {
         options.setExperimentalOption("prefs", chromePrefs);
         options.addArguments("--window-size=1280,1600");
         options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
         driver = new ChromeDriver(options);
         testPage = new Page(driver);
     }

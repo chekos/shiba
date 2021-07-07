@@ -1,9 +1,9 @@
 ALTER TABLE applications
-ADD COLUMN caf_application_status VARCHAR;
+ADD caf_application_status VARCHAR(255);
 
 ALTER TABLE applications
-ADD COLUMN ccap_application_status VARCHAR;
+ADD ccap_application_status VARCHAR(255);
 
 ALTER TABLE applications
-ADD COLUMN uploaded_documents_status VARCHAR;
+ADD uploaded_documents_status VARCHAR(255);
 

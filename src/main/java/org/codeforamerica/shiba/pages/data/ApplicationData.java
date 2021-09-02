@@ -80,8 +80,7 @@ public class ApplicationData implements Serializable {
       pageData = incompleteIterations.get(pageWorkflowConfiguration.getGroupName())
           .get(pageWorkflowConfiguration.getPageConfiguration().getName());
     } else {
-      pageData = pagesData
-          .getPage(pageWorkflowConfiguration.getPageConfiguration().getName());
+      pageData = pagesData.getPage(pageWorkflowConfiguration.getPageConfiguration().getName());
     }
 
     if (pageData == null && !pageWorkflowConfiguration.getPageConfiguration().isStaticPage()) {
@@ -91,28 +90,31 @@ public class ApplicationData implements Serializable {
     }
 
     return pageWorkflowConfiguration.getNextPages().stream()
-        .filter(page -> nextPage(featureFlags, pageWorkflowConfiguration, page)).findFirst()
+        .filter(
+            page -> nextPageConditionsAreSatisfied(featureFlags, pageWorkflowConfiguration, page))
+        .findFirst()
         .orElseThrow(() -> new RuntimeException("Cannot find suitable next page."));
   }
 
-  private boolean nextPage(FeatureFlagConfiguration featureFlags,
-      @NotNull PageWorkflowConfiguration pageWorkflowConfiguration, NextPage nextPage) {
-    boolean isNextPage = true;
+  private boolean nextPageConditionsAreSatisfied(FeatureFlagConfiguration featureFlags,
+      @NotNull PageWorkflowConfiguration currentPage,
+      NextPage nextPage) {
+    boolean satisfied = true;
     Condition condition = nextPage.getCondition();
     if (condition != null) {
-      if (pageWorkflowConfiguration.isInAGroup()) {
-        isNextPage = condition.matches(
-            incompleteIterations.get(pageWorkflowConfiguration.getGroupName())
-                .get(pageWorkflowConfiguration.getPageConfiguration().getName()),
-            pagesData);
+      if (currentPage.isInAGroup()) {
+        var pageData = incompleteIterations
+            .get(currentPage.getGroupName())
+            .get(currentPage.getPageConfiguration().getName());
+        satisfied = condition.matches(pageData, pagesData);
       } else {
-        isNextPage = pagesData.satisfies(condition);
+        satisfied = pagesData.satisfies(condition);
       }
     }
     if (nextPage.getFlag() != null) {
-      isNextPage &= featureFlags.get(nextPage.getFlag()) == FeatureFlag.ON;
+      satisfied &= featureFlags.get(nextPage.getFlag()) == FeatureFlag.ON;
     }
-    return isNextPage;
+    return satisfied;
   }
 
   public boolean isCCAPApplication() {

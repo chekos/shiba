@@ -103,7 +103,7 @@ public class ApplicationData implements Serializable {
     Condition condition = nextPage.getCondition();
     if (condition != null) {
       if (currentPage.isInAGroup()) {
-        var pageData = incompleteIterations
+        PageData pageData = incompleteIterations
             .get(currentPage.getGroupName())
             .get(currentPage.getPageConfiguration().getName());
         satisfied = condition.matches(pageData, pagesData);

@@ -909,6 +909,17 @@ pageDefinitions:
     inputs:
       - name: isUsCitizen
         type: YES_NO
+
+  - &areYouACitizenOfAnotherCountry
+    name: areYouACitizenOfAnotherCountry
+    pageTitle: are-you-a-citizen-of-another-country.title
+    headerKey:
+      defaultValue: are-you-a-citizen-of-another-country.i-am-a-citizen
+    headerHelpMessageKey: are-you-a-citizen-of-another-country.or-have-you-been
+    hasPrimaryButton: false
+    inputs:
+      - name: areYouACitizenOfAnotherCountry
+        type: YES_NO
   - &whoIsNonCitizen
     name: whoIsNonCitizen
     pageTitle: who-is-non-citizen.title
@@ -3008,7 +3019,7 @@ workflow:
   whoIsNonCitizen:
     pageConfiguration: *whoIsNonCitizen
     nextPages:
-      - pageName: disability
+      - pageName: areYouACitizenOfAnotherCountry
     datasources:
       - pageName: addHouseholdMembers
       - pageName: usCitizen
@@ -3019,6 +3030,11 @@ workflow:
         - pageName: usCitizen
           input: isUsCitizen
           value: "true"
+  areYouACitizenOfAnotherCountry:
+     pageConfiguration: *areYouACitizenOfAnotherCountry
+     nextPages:
+       - pageName: disability
+
   migrantFarmWorker:
     pageConfiguration: *migrantFarmWorker
     nextPages:

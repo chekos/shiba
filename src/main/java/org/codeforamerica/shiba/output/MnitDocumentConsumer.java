@@ -16,6 +16,7 @@ import org.codeforamerica.shiba.application.Application;
 import org.codeforamerica.shiba.application.ApplicationRepository;
 import org.codeforamerica.shiba.application.parsers.DocumentListParser;
 import org.codeforamerica.shiba.mnit.MnitEsbWebServiceClient;
+import org.codeforamerica.shiba.mnit.MnitFilenetWebServiceClient;
 import org.codeforamerica.shiba.mnit.RoutingDestination;
 import org.codeforamerica.shiba.output.pdf.PdfGenerator;
 import org.codeforamerica.shiba.output.xml.XmlGenerator;
@@ -30,13 +31,14 @@ import org.springframework.stereotype.Component;
 public class MnitDocumentConsumer {
 
   private final MnitEsbWebServiceClient mnitClient;
+  private final MnitFilenetWebServiceClient mnitFilenetClient;
   private final EmailClient emailClient;
   private final XmlGenerator xmlGenerator;
   private final PdfGenerator pdfGenerator;
   private final MonitoringService monitoringService;
   private final RoutingDecisionService routingDecisionService;
   private final ApplicationRepository applicationRepository;
-  private final FeatureFlagConfiguration featureFlagConfiguration;
+  private final FeatureFlagConfiguration featureFlags;
 
   public MnitDocumentConsumer(MnitEsbWebServiceClient mnitClient,
       EmailClient emailClient,
@@ -45,15 +47,17 @@ public class MnitDocumentConsumer {
       MonitoringService monitoringService,
       RoutingDecisionService routingDecisionService,
       ApplicationRepository applicationRepository,
-      FeatureFlagConfiguration featureFlagConfiguration) {
+      FeatureFlagConfiguration featureFlags,
+      MnitFilenetWebServiceClient mnitFilenetClient) {
     this.mnitClient = mnitClient;
+    this.mnitFilenetClient = mnitFilenetClient;
     this.xmlGenerator = xmlGenerator;
     this.pdfGenerator = pdfGenerator;
     this.monitoringService = monitoringService;
     this.routingDecisionService = routingDecisionService;
     this.applicationRepository = applicationRepository;
+    this.featureFlags = featureFlags;
     this.emailClient = emailClient;
-    this.featureFlagConfiguration = featureFlagConfiguration;
   }
 
   public void processCafAndCcap(Application application) {
@@ -113,7 +117,7 @@ public class MnitDocumentConsumer {
     List<RoutingDestination> routingDestinations = routingDecisionService
         .getRoutingDestinations(application.getApplicationData(), UPLOADED_DOC);
     for (RoutingDestination rd : routingDestinations) {
-      boolean sendToHennepinViaEmail = featureFlagConfiguration.get(
+      boolean sendToHennepinViaEmail = featureFlags.get(
           "submit-docs-via-email-for-hennepin").isOn();
       boolean isHennepin = rd.getName().equals(County.Hennepin.name());
 
@@ -132,23 +136,19 @@ public class MnitDocumentConsumer {
   private void sendApplication(Application application, Document document, ApplicationFile file) {
     List<RoutingDestination> routingDestinations = routingDecisionService
         .getRoutingDestinations(application.getApplicationData(), document);
-
-    routingDestinations.forEach(rd -> {
-      String filename = document.name();
-      if (file != null && file.getFileName() != null && file.getFileName().contains("xml")) {
-        filename = "XML";
-      }
-      sendApplication(application, document, file, rd, filename);
-    });
-  }
-
-  private void sendApplication(Application application, Document document, ApplicationFile file,
-      RoutingDestination rd, String filename) {
-    log.info("Now sending %s to recipient %s for application %s".formatted(
-        filename,
-        rd.getName(),
-        application.getId()));
-    mnitClient.send(file, rd, application.getId(), document, application.getFlow());
+    String filename = document.name();
+    if (file != null && file.getFileName() != null && file.getFileName().contains("xml")) {
+      filename = "XML";
+    }
+    if (featureFlags.get("filenet").isOff()) {
+      routingDestinations.forEach(rd -> {
+        mnitClient.send(file, rd, application.getId(), document, application.getFlow());
+      });
+    } else {
+      routingDestinations.forEach(rd -> {
+        mnitFilenetClient.send(file, rd, application.getId(), document, application.getFlow());
+      });
+    }
   }
 
   class SendPDFRunnable implements Runnable {

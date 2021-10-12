@@ -41,8 +41,8 @@ public class MnitDocumentConsumer {
   private final FeatureFlagConfiguration featureFlags;
 
   public MnitDocumentConsumer(MnitEsbWebServiceClient mnitClient,
-      EmailClient emailClient,
       XmlGenerator xmlGenerator,
+      EmailClient emailClient,
       PdfGenerator pdfGenerator,
       MonitoringService monitoringService,
       RoutingDecisionService routingDecisionService,

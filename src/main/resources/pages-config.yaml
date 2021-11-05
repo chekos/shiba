@@ -374,6 +374,11 @@ pageDefinitions:
             - value: NONE
               messageKey: general.inputs.none-of-the-above
               isNone: true
+  - &certainPopsConfirm
+    name: certainPopsConfirm
+    pageTitle: certain-pops-confirm.title
+    headerKey: certain-pops-confirm.we-added-health-care-to-your-application
+    contextFragment: checkmarkContextFragment
   - &introBasicInfo
     name: introBasicInfo
     pageTitle: intro-basic-info.title
@@ -2970,6 +2975,10 @@ workflow:
       - pageName: introBasicInfo
   basicCriteria:
     pageConfiguration: *basicCriteria
+    nextPages:
+      - pageName: certainPopsConfirm
+  certainPopsConfirm:
+    pageConfiguration: *certainPopsConfirm
     nextPages:
       - pageName: introBasicInfo
   introBasicInfo:

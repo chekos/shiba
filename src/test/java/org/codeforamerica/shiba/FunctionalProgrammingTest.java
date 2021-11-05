@@ -1,12 +1,11 @@
 package org.codeforamerica.shiba;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,8 @@ public class FunctionalProgrammingTest {
 
   @BeforeEach
   void setUp() {
-    Person andrew = new Person("Andrew", "Edstrom", "Oakland", List.of("Miriam", "Coffee", "Donuts"));
+    Person andrew = new Person("Andrew", "Edstrom", "Oakland",
+        List.of("Miriam", "Coffee", "Donuts"));
     Person alex = new Person("Alex", "Gonzalez", "Berkeley", Collections.emptyList());
     Person sree = new Person("Sree", "Prasad", "Oakland", List.of("Korra"));
     Person britney = new Person("Britney", "Epps", "Detroit", List.of("Titus"));
@@ -38,7 +38,8 @@ public class FunctionalProgrammingTest {
   @Test
   void testGetCities() {
     Set<String> currentCities = new HashSet<>();
-    assertThat(currentCities).containsExactlyInAnyOrder("Oakland", "Bekeley", "Detroit", "Chicago", "Manchester");
+    assertThat(currentCities).containsExactlyInAnyOrder("Oakland", "Bekeley", "Detroit", "Chicago",
+        "Manchester");
   }
 
   @Test
@@ -63,15 +64,13 @@ public class FunctionalProgrammingTest {
         "Manchester", List.of("Ben")
     );
 
-    Map<String, List<String>> cityToFirstNames = new HashMap<>();
+    Map<String, List<String>> cityToFirstNames = cfaEngineers.stream().collect(
+        groupingBy(
+            Person::getCurrentCity, // Oakland
+            mapping(Person::getFirstName, toList()) // [Andrew, Sree]
+        ));
     assertThat(cityToFirstNames).containsAllEntriesOf(expected);
   }
-
-
-
-
-
-
 }
 
 @Data
